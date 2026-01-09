@@ -1,3 +1,5 @@
+Init date: 2026/1/10
+
 # Changelog
 
 This changelog follows the format defined here: https://keepachangelog.com/en/1.0.0/

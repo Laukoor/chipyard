@@ -8,7 +8,7 @@ import freechips.rocketchip.subsystem._
 import freechips.rocketchip.rocket.{RocketCoreParams, MulDivParams, DCacheParams, ICacheParams}
 import freechips.rocketchip.diplomacy._
 
-import testchipip.cosim.{TracePortKey, TracePortParams}
+import testchipip.cosim.{TracePortKey, TracePortParams, TraceDoctorPortKey, TraceDoctorPortParams}
 import barf.{TilePrefetchingMasterPortParams}
 import freechips.rocketchip.trace.{TraceEncoderParams, TraceCoreParams}
 import shuttle.common.{ShuttleTileAttachParams}
@@ -74,6 +74,21 @@ class WithTraceIO extends Config((site, here, up) => {
   }
   case TracePortKey => Some(TracePortParams())
 })
+
+// TEA and tracedoctor Addons -----------------------------------------------------------------
+class WithTraceDoctorIO(traceWidth: Int = 512) extends Config((site, here, up) => {
+  case TilesLocated(InSubsystem) => up(TilesLocated(InSubsystem), site) map {
+    case tp: RocketTileAttachParams => tp.copy(tileParams = tp.tileParams.copy(
+      core = tp.tileParams.core.copy(setTraceDoctorWidth = traceWidth)))
+    case tp: boom.v3.common.BoomTileAttachParams => tp.copy(tileParams = tp.tileParams.copy(
+      core = tp.tileParams.core.copy(setTraceDoctorWidth = traceWidth)))
+    case tp: boom.v4.common.BoomTileAttachParams => tp.copy(tileParams = tp.tileParams.copy(
+      core = tp.tileParams.core.copy(setTraceDoctorWidth = traceWidth)))
+    case other => other
+  }
+  case TraceDoctorPortKey => Some(TraceDoctorPortParams())
+})
+// --------------------------------------------------------------------------------------------
 
 class WithNoTraceIO extends Config((site, here, up) => {
   case TilesLocated(InSubsystem) => up(TilesLocated(InSubsystem), site) map { tp =>

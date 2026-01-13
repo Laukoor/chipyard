@@ -7,12 +7,12 @@ import java.io.File
 import chisel3._
 import chisel3.util.{log2Up}
 
-import org.chipsalliance.cde.config.{Config}
+import org.chipsalliance.cde.config.{Config, Parameters}
 import freechips.rocketchip.tile._
 import freechips.rocketchip.tilelink._
 import freechips.rocketchip.subsystem._
 import freechips.rocketchip.devices.tilelink.{BootROMLocated}
-import freechips.rocketchip.devices.debug.{DebugModuleKey}
+import freechips.rocketchip.devices.debug.{DebugModuleKey, DebugModuleParams}
 import freechips.rocketchip.prci.{AsynchronousCrossing}
 import testchipip.cosim.{TracePortKey}
 import icenet._
@@ -84,6 +84,8 @@ class WithFireSimDesignTweaks extends Config(
   new chipyard.config.WithNoUART() ++       // so we overwrite the default one
   // Optional: Adds IO to attach tracerV bridges
   new chipyard.config.WithTraceIO ++
+  // Add TEA
+  new chipyard.config.WithTraceDoctorIO ++
   // Optional: Request 16 GiB of target-DRAM by default (can safely request up to 64 GiB on F1)
   new freechips.rocketchip.subsystem.WithExtMemSize((1 << 30) * 16L) ++
   // Optional: Removing this will require using an initramfs under linux
@@ -135,6 +137,26 @@ class WithMinimalFireSimHighPerfConfigTweaks extends Config(
   new WithMinimalFireSimDesignTweaks
 )
 
+class WithFireSimTEAClocking extends Config(
+  // Optional: This sets the default frequency for all buses in the system to 3.2 GHz
+  // (since unspecified bus frequencies will use the pbus frequency)
+  // This frequency selection matches FireSim's legacy selection and is required
+  // to support 200Gb NIC performance. You may select a smaller value.
+  // new chipyard.config.WithPeripheryBusFrequency(3200.0) ++
+    // Optional: These three configs put the DRAM memory system in it's own clock domain.
+    // Removing the first config will result in the FASED timing model running
+    // at the pbus freq (above, 3.2 GHz), which is outside the range of valid DDR3 speedgrades.
+    // 1 GHz matches the FASED default, using some other frequency will require
+    // runnings the FASED runtime configuration generator to generate faithful DDR3 timing values.
+    //new chipyard.config.WithMemoryBusFrequency(1000.0) ++
+    // Before the Memory bus there will be a clock domain crossing which by default only
+    // has a buffer depth of 8, which is for this memory system not enough.
+    // We increase it here to 32
+    new chipyard.config.WithSbusToMbusCrossingType(AsynchronousCrossing(depth = 32)) ++
+    new WithFireSimHighPerfClocking
+    //new testchipip.WithAsynchronousSerialSlaveCrossing
+)
+
 /**
   * Adds BlockDevice to WithMinimalFireSimHighPerfConfigTweaks
   */
@@ -175,6 +197,11 @@ class WithFireSimTestChipConfigTweaks extends Config(
   new chipyard.config.WithSbusToMbusCrossingType(AsynchronousCrossing()) ++ // Add Async crossings between backside of L2 and MBUS
   new freechips.rocketchip.rocket.WithRationalCDCs ++   // Add rational crossings between RocketTile and uncore
   new boom.v3.common.WithRationalBoomTiles ++ // Add rational crossings between BoomTile and uncore
+  new WithFireSimDesignTweaks
+)
+// TEA Config tweaks
+class WithFireSimTEAConfigTweaks extends Config(
+  new WithFireSimTEAClocking ++
   new WithFireSimDesignTweaks
 )
 
@@ -262,6 +289,42 @@ class FireSimLargeBoomAndRocketConfig extends Config(
   new WithDefaultFireSimBridges ++
   new WithFireSimConfigTweaks ++
   new chipyard.LargeBoomAndRocketConfig)
+
+// TEA Boom Configs
+class FireSimTEASmallBoomConfig extends Config(
+  new WithEdgeDataBits(128) ++
+    new WithDefaultFireSimBridges ++
+    new WithDefaultMemModel ++
+    new WithFireSimTEAConfigTweaks ++
+    new freechips.rocketchip.subsystem.WithNTrackersPerBank(8) ++
+    new freechips.rocketchip.subsystem.WithNBanks(1) ++
+    new freechips.rocketchip.subsystem.WithInclusiveCache(nWays = 8, capacityKB = 512, subBankingFactor = 4) ++
+    new boom.v3.common.WithBoomMemoryLatencyTracking ++
+    new chipyard.SmallBoomV3Config)
+
+class FireSimTEAUltraBoom2MBL2PrftRoCCConfig extends Config(
+  new WithEdgeDataBits(128) ++
+    new WithDefaultFireSimBridges ++
+    new WithDefaultMemModel ++
+    new WithFireSimTEAConfigTweaks ++
+    new freechips.rocketchip.subsystem.WithNTrackersPerBank(12) ++
+    new freechips.rocketchip.subsystem.WithNBanks(2) ++
+    new freechips.rocketchip.subsystem.WithInclusiveCache(nWays = 16, capacityKB = 1024, subBankingFactor = 8, outerLatencyCycles = 40) ++
+    new boom.v3.common.WithSoftwarePrefetchRoCC ++
+    new boom.v3.common.WithBoomMemoryLatencyTracking ++
+    new chipyard.UltraBoomV3Config)
+
+class FireSimTEATestBoom2MBL2PrftRoCCConfig extends Config(
+  new WithEdgeDataBits(128) ++
+    new WithDefaultFireSimBridges ++
+    new WithDefaultMemModel ++
+    new WithFireSimTEAConfigTweaks ++
+    new freechips.rocketchip.subsystem.WithNTrackersPerBank(12) ++
+    new freechips.rocketchip.subsystem.WithNBanks(2) ++
+    new freechips.rocketchip.subsystem.WithInclusiveCache(nWays = 16, capacityKB = 1024, subBankingFactor = 8, outerLatencyCycles = 40) ++
+    new boom.v3.common.WithSoftwarePrefetchRoCC ++
+    new boom.v3.common.WithBoomMemoryLatencyTracking ++
+    new chipyard.TestBoomV3Config)
 
 //******************************************************************
 // Gemmini NN accel config, base off chipyard's GemminiRocketConfig

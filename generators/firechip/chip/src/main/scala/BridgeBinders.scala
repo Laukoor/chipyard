@@ -129,6 +129,14 @@ class WithTracerVBridge extends HarnessBinder({
   }
 })
 
+class WithTraceDoctorBridge extends HarnessBinder({
+  case (th: FireSim, port: TraceDoctorPort, chipId: Int) =>{
+    // port.io 是 TraceDoctorOutputTop，里面有 tracedoctors: HeterogeneousBag[TileTraceDoctorIO]
+    port.io.tracedoctors.map(tileTrace => TraceDoctorBridge(tileTrace)(th.p))
+  }
+
+})
+
 class WithCospikeBridge extends HarnessBinder({
   case (th: FireSim, port: TracePort, chipId: Int) => {
     port.io.traces.zipWithIndex.map(t => CospikeBridge(t._1, t._2, port.cosimCfg))
@@ -152,6 +160,7 @@ class WithDefaultFireSimBridges extends Config(
   new WithFireSimMultiCycleRegfile ++
   new WithFireSimFAME5 ++
   new WithTracerVBridge ++
+  WithTraceDoctorBridge ++
   new WithFireSimIOCellModels
 )
 

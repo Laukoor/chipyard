@@ -35,7 +35,7 @@ import testchipip.boot.{CanHavePeripheryCustomBootPin}
 import testchipip.soc.{CanHavePeripheryChipIdPin, CanHaveSwitchableOffchipBus}
 import testchipip.util.{ClockedIO}
 import testchipip.iceblk.{CanHavePeripheryBlockDevice, BlockDeviceKey, BlockDeviceIO}
-import testchipip.cosim.{CanHaveTraceIO, TraceOutputTop, SpikeCosimConfig}
+import testchipip.cosim.{CanHaveTraceIO, TraceOutputTop, SpikeCosimConfig, CanHaveTraceDoctorIO, TraceDoctorOutputTop}
 import testchipip.tsi.{CanHavePeripheryUARTTSI, UARTTSIIO}
 import icenet.{CanHavePeripheryIceNIC, SimNetwork, NicLoopback, NICKey, NICIOvonly}
 import chipyard.{CanHaveMasterTLMemPort, ChipyardSystem, ChipyardSystemModule}
@@ -515,6 +515,26 @@ class WithTraceIOPunchthrough extends OverrideLazyIOBinder({
       )
       TracePort(() => trace, cfg)
     }
+    (ports.toSeq, Nil)
+  }
+})
+
+class WithTraceDoctorIOPunchthrough extends OverrideLazyIOBinder({
+  (system: CanHaveTraceDoctorIO) => InModuleBody {
+    // system.traceDoctorIO: Option[TraceDoctorOutputTop]
+    val ports: Option[TraceDoctorPort] = system.traceDoctorIO.map { t =>
+      // 在 ChipTop 上 clone 出一份同类型的 IO，名字叫 "tracedoctor"
+      val trace = IO(
+        DataMirror.internal.chiselTypeClone[TraceDoctorOutputTop](t)
+      ).suggestName("tracedoctor")
+
+      // 内部 TraceDoctor IO 和 顶层 tracedoctor 端口一一相连
+      trace <> t
+
+      // 包成 Port，后面的 HarnessBinders 会通过这个 Port 拿到 IO
+      TraceDoctorPort(() => trace)
+    }
+
     (ports.toSeq, Nil)
   }
 })

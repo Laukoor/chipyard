@@ -8,7 +8,7 @@ import sifive.blocks.devices.gpio.{GPIOPortIO}
 import testchipip.util.{ClockedIO}
 import testchipip.serdes.{TLSerdesser, SerialIO, SerialTLParams}
 import testchipip.spi.{SPIChipIO}
-import testchipip.cosim.{TraceOutputTop, SpikeCosimConfig}
+import testchipip.cosim.{TraceOutputTop, SpikeCosimConfig, TraceDoctorOutputTop}
 import testchipip.iceblk.{BlockDeviceIO, BlockDeviceConfig}
 import testchipip.tsi.{UARTTSIIO}
 import icenet.{NICIOvonly, NICConfig}
@@ -87,6 +87,9 @@ case class SuccessPort     (val getIO: () => Bool)
 
 case class TracePort       (val getIO: () => TraceOutputTop, val cosimCfg: SpikeCosimConfig)
     extends Port[TraceOutputTop]
+
+case class TraceDoctorPort (val getIO: () => TraceDoctorOutputTop)
+    extends Port[TraceDoctorOutputTop]
 
 case class CustomBootPort  (val getIO: () => Bool)
     extends Port[Bool]

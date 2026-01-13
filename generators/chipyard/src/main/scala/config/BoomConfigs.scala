@@ -25,6 +25,16 @@ class MegaBoomV3Config extends Config(
   new chipyard.config.WithSystemBusWidth(128) ++
   new chipyard.config.AbstractConfig)
 
+// TEA Addons ----------------------------------
+class TestBoomV3Config extends Config(
+  new boom.v3.common.WithNTestBooms(1) ++                           // mega boom config
+    new chipyard.config.AbstractConfig)
+
+class UltraBoomV3Config extends Config(
+  new boom.v3.common.WithNUltraBooms(1) ++                           // mega boom config
+  new chipyard.config.AbstractConfig)
+//----------------------------------------------
+
 class DualSmallBoomV3Config extends Config(
   new boom.v3.common.WithNSmallBooms(2) ++                          // 2 boom cores
   new chipyard.config.AbstractConfig)

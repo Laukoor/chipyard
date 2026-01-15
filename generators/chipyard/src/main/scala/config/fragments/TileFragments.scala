@@ -78,12 +78,14 @@ class WithTraceIO extends Config((site, here, up) => {
 // TEA and tracedoctor Addons -----------------------------------------------------------------
 class WithTraceDoctorIO(traceWidth: Int = 512) extends Config((site, here, up) => {
   case TilesLocated(InSubsystem) => up(TilesLocated(InSubsystem), site) map {
-    case tp: RocketTileAttachParams => tp.copy(tileParams = tp.tileParams.copy(
-      core = tp.tileParams.core.copy(setTraceDoctorWidth = traceWidth)))
-    case tp: boom.v3.common.BoomTileAttachParams => tp.copy(tileParams = tp.tileParams.copy(
-      core = tp.tileParams.core.copy(setTraceDoctorWidth = traceWidth)))
-    case tp: boom.v4.common.BoomTileAttachParams => tp.copy(tileParams = tp.tileParams.copy(
-      core = tp.tileParams.core.copy(setTraceDoctorWidth = traceWidth)))
+    case tp: RocketTileAttachParams => 
+      val rocketCore = tp.tileParams.core.asInstanceOf[freechips.rocketchip.rocket.RocketCoreParams]
+      tp.copy(tileParams = tp.tileParams.copy(
+        core = rocketCore.copy(setTraceDoctorWidth = traceWidth)))
+    case tp: boom.v3.common.BoomTileAttachParams => 
+      val boomCore = tp.tileParams.core.asInstanceOf[boom.v3.common.BoomCoreParams]
+      tp.copy(tileParams = tp.tileParams.copy(
+        core = boomCore.copy(setTraceDoctorWidth = traceWidth)))
     case other => other
   }
   case TraceDoctorPortKey => Some(TraceDoctorPortParams())

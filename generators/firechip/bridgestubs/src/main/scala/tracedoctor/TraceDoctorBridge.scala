@@ -23,7 +23,7 @@ class TraceDoctorBridge(traceWidth: Int)
   val io = IO(new TraceDoctorBridgeTargetIO(traceWidth))
   val bridgeIO = HostPort(io)
   // constructorArg 会传给 host 端 BridgeModule 构造函数
-  val constructorArg = Some(traceWidth)
+  val constructorArg = Some(TraceDoctorBridgeParams(traceWidth))
 
   // 生成 Golden Gate 需要的注解
   generateAnnotations()
@@ -36,8 +36,8 @@ object TraceDoctorBridge {
     val bridge = withClockAndReset(tileTrace.clock, tileTrace.reset) {
       Module(new TraceDoctorBridge(tileTrace.traceWidth))
     }
-    // 直接把 trace 连接过去（类型已经是 TileTraceDoctorIO，不需要额外转换）
-    bridge.io.tracedoctor := tileTrace
+    // 把 testchipip 的 TileTraceDoctorIO 转成 bridgeinterfaces 版本
+    bridge.io.tracedoctor := ConvertTileTraceDoctorIO(tileTrace)
     bridge
   }
 }

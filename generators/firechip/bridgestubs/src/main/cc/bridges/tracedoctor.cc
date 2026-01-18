@@ -1,5 +1,4 @@
 //See LICENSE for license details
-#ifdef TRACEDOCTORBRIDGEMODULE_struct_guard
 
 #include "tracedoctor.h"
 
@@ -15,20 +14,23 @@
 
 #include <sys/mman.h>
 
-tracedoctor_t::tracedoctor_t(
-                             simif_t *sim,
+char tracedoctor_t::KIND;
+
+tracedoctor_t::tracedoctor_t(simif_t &sim,
+                             StreamEngine &stream,
+                             const TRACEDOCTORBRIDGEMODULE_struct &mmio_addrs,
+                             int tracerId,
                              std::vector<std::string> &args,
-                             TRACEDOCTORBRIDGEMODULE_struct * mmioAddrs,
-                             const int stream_idx,
-                             const int stream_depth,
-                             const unsigned int tokenWidth,
-                             const unsigned int traceWidth,
-                             const char* const  clock_domain_name,
-                             const unsigned int clock_multiplier,
-                             const unsigned int clock_divisor,
-                             int tracerId) :
-  bridge_driver_t(sim), mmioAddrs(mmioAddrs), streamIdx(stream_idx),
-  streamDepth(stream_depth),clock_info(clock_domain_name, clock_multiplier, clock_divisor)
+                             uint32_t stream_idx,
+                             uint32_t stream_depth,
+                             unsigned int tokenWidth,
+                             unsigned int traceWidth,
+                             const ClockInfo &clock_info)
+    : streaming_bridge_driver_t(sim, stream, &KIND),
+      mmio_addrs(mmio_addrs),
+      streamIdx(stream_idx),
+      streamDepth(stream_depth),
+      clock_info(clock_info)
 {
   info.tracerId = tracerId;
   info.tokenBits = tokenWidth;
@@ -168,22 +170,21 @@ tracedoctor_t::~tracedoctor_t() {
 
     fprintf(stdout, "TraceDoctor@%d: tick_time(%f), traced_tokens(%ld), traced_bytes(%ld)\n", info.tracerId, tickTime.count(), totalTokens, totalTokens * info.traceBytes);
   }
-  free(mmioAddrs);
 }
 
 void tracedoctor_t::init() {
   if (!traceEnabled) {
-    write(mmioAddrs->traceEnable, 0);
-    write(mmioAddrs->triggerSelector, 0);
+    write(mmio_addrs.traceEnable, 0);
+    write(mmio_addrs.triggerSelector, 0);
     fprintf(stdout, "TraceDoctor@%d: collection disabled\n", info.tracerId);
   } else {
-    write(mmioAddrs->traceEnable, 1);
-    write(mmioAddrs->triggerSelector, traceTrigger);
+    write(mmio_addrs.traceEnable, 1);
+    write(mmio_addrs.triggerSelector, traceTrigger);
     fprintf(stdout, "TraceDoctor@%d: trigger(%s), stream_depth(%d), token_width(%d), trace_width(%d),\n",
             info.tracerId, (traceTrigger == 0) ? "none" : "tracerv", streamDepth, info.tokenBits, info.traceBits);
     fprintf(stdout, "TraceDoctor@%d: buffer_depth(%d), buffer_grouping(%d), workers(%ld), threads(%d)\n", info.tracerId, bufferDepth, bufferGrouping, workers.size(), traceThreads);
   }
-  write(mmioAddrs->initDone, true);
+  write(mmio_addrs.initDone, true);
 }
 
 
@@ -328,7 +329,3 @@ void tracedoctor_t::flush() {
   if (this->traceEnabled)
     while (process_tokens(streamDepth, true));
 }
-
-
-
-#endif // TRACEDOCTORBRIDGEMODULE_struct_guard

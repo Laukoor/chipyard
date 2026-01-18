@@ -1,11 +1,12 @@
 #ifndef __TRACEDOCTOR_WORKER_H_
 #define __TRACEDOCTOR_WORKER_H_
 
-#include <vector>
-#include <tuple>
-#include <string>
-#include <map>
 #include <cassert>
+#include <cstdint>
+#include <map>
+#include <string>
+#include <tuple>
+#include <vector>
 
 struct traceInfo {
   unsigned int tracerId;

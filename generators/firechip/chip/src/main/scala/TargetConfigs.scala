@@ -294,7 +294,6 @@ class FireSimLargeBoomAndRocketConfig extends Config(
 class FireSimTEASmallBoomConfig extends Config(
   new WithEdgeDataBits(128) ++
     new WithDefaultFireSimBridges ++
-    new WithDefaultMemModel ++
     new WithFireSimTEAConfigTweaks ++
     new freechips.rocketchip.subsystem.WithNTrackersPerBank(8) ++
     new freechips.rocketchip.subsystem.WithNBanks(1) ++
@@ -305,7 +304,6 @@ class FireSimTEASmallBoomConfig extends Config(
 class FireSimTEAUltraBoom2MBL2PrftRoCCConfig extends Config(
   new WithEdgeDataBits(128) ++
     new WithDefaultFireSimBridges ++
-    new WithDefaultMemModel ++
     new WithFireSimTEAConfigTweaks ++
     new freechips.rocketchip.subsystem.WithNTrackersPerBank(12) ++
     new freechips.rocketchip.subsystem.WithNBanks(2) ++
@@ -317,7 +315,6 @@ class FireSimTEAUltraBoom2MBL2PrftRoCCConfig extends Config(
 class FireSimTEATestBoom2MBL2PrftRoCCConfig extends Config(
   new WithEdgeDataBits(128) ++
     new WithDefaultFireSimBridges ++
-    new WithDefaultMemModel ++
     new WithFireSimTEAConfigTweaks ++
     new freechips.rocketchip.subsystem.WithNTrackersPerBank(12) ++
     new freechips.rocketchip.subsystem.WithNBanks(2) ++

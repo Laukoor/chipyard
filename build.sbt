@@ -507,6 +507,7 @@ lazy val firesim_lib = (project in firesimDir / "sim/firesim-lib")
 // Minimal in scope (should only depend on Chisel/Firrtl).
 // This is copied to FireSim's GoldenGate compiler.
 lazy val firechip_bridgeinterfaces = (project in file("generators/firechip/bridgeinterfaces"))
+  .dependsOn(testchipip)
   .settings(
     chiselSettings,
     commonSettings,

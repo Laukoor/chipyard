@@ -1,9 +1,11 @@
 #ifndef __TRACEDOCTOR_H_
 #define __TRACEDOCTOR_H_
 
-#include "bridges/bridge_driver.h"
-#include "bridges/clock_info.h"
+#include "core/bridge_driver.h"
+#include "core/clock_info.h"
 
+#include <cstdint>
+#include <string>
 #include <vector>
 #include <mutex>
 #include <condition_variable>
@@ -16,24 +18,11 @@
 #include <functional>
 #include "tracedoctor_register.h"
 
-#ifdef TRACEDOCTORBRIDGEMODULE_struct_guard
-
-// Bridge Driver Instantiation Template
-#define INSTANTIATE_TRACEDOCTOR(FUNC,IDX) \
-     TRACEDOCTORBRIDGEMODULE_ ## IDX ## _substruct_create; \
-     FUNC(new tracedoctor_t( \
-        this, \
-        args, \
-        TRACEDOCTORBRIDGEMODULE_ ## IDX ## _substruct, \
-        TRACEDOCTORBRIDGEMODULE_ ## IDX ## _to_cpu_stream_idx, \
-        TRACEDOCTORBRIDGEMODULE_ ## IDX ## _to_cpu_stream_depth, \
-        TRACEDOCTORBRIDGEMODULE_ ## IDX ## _token_width, \
-        TRACEDOCTORBRIDGEMODULE_ ## IDX ## _trace_width, \
-        TRACEDOCTORBRIDGEMODULE_ ## IDX ## _clock_domain_name, \
-        TRACEDOCTORBRIDGEMODULE_ ## IDX ## _clock_multiplier, \
-        TRACEDOCTORBRIDGEMODULE_ ## IDX ## _clock_divisor, \
-        IDX)); \
-
+struct TRACEDOCTORBRIDGEMODULE_struct {
+  uint64_t initDone;
+  uint64_t traceEnable;
+  uint64_t triggerSelector;
+};
 
 class spinlock {
   std::atomic<bool> lock_ = {false};
@@ -72,20 +61,22 @@ struct referencedBuffer {
 };
 
 
-class tracedoctor_t: public bridge_driver_t
+class tracedoctor_t final : public streaming_bridge_driver_t
 {
 public:
-  tracedoctor_t(simif_t *sim,
+  /// The identifier for the bridge type used for casts.
+  static char KIND;
+
+  tracedoctor_t(simif_t &sim,
+                StreamEngine &stream,
+                const TRACEDOCTORBRIDGEMODULE_struct &mmio_addrs,
+                int tracerId,
                 std::vector<std::string> &args,
-                TRACEDOCTORBRIDGEMODULE_struct * mmio_addrs,
-                const int stream_idx,
-                const int stream_depth,
-                const unsigned int tokenWidth,
-                const unsigned int traceWidth,
-                const char* const  clock_domain_name,
-                const unsigned int clock_multiplier,
-                const unsigned int clock_divisor,
-                int tracerId);
+                uint32_t stream_idx,
+                uint32_t stream_depth,
+                unsigned int tokenWidth,
+                unsigned int traceWidth,
+                const ClockInfo &clock_info);
   ~tracedoctor_t();
 
   void init();
@@ -97,7 +88,7 @@ public:
   void work(unsigned int const threadIndex);
 
 private:
-  TRACEDOCTORBRIDGEMODULE_struct * mmioAddrs;
+  const TRACEDOCTORBRIDGEMODULE_struct mmio_addrs;
   int streamIdx;
   int streamDepth;
 
@@ -134,6 +125,4 @@ private:
   bool process_tokens(unsigned int const tokens, bool flush = false);
   void flush();
 };
-#endif // TRACEDOCTORBRIDGEMODULE_struct_guard
-
 #endif // __TRACEDOCTOR_H_

@@ -16,7 +16,8 @@ import firechip.bridgeinterfaces._
 object TokenQueueConsts {
   val TOKENS_PER_BIG_TOKEN = 7
   val BIG_TOKEN_WIDTH = (TOKENS_PER_BIG_TOKEN + 1) * 64
-  val TOKEN_QUEUE_DEPTH = 3072
+  val TOKEN_QUEUE_DEPTH = 3072 // DMA队列缓冲深度
+  // FPGA 端维护一个 3072 深度的 token 队列，每个 token 512-bit (64 字节)
 }
 import TokenQueueConsts._
 

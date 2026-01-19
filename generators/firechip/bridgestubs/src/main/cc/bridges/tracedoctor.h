@@ -1,8 +1,8 @@
 #ifndef __TRACEDOCTOR_H_
 #define __TRACEDOCTOR_H_
 
-#include "bridges/bridge_driver.h"
-#include "bridges/clock_info.h"
+#include "core/bridge_driver.h"
+#include "core/clock_info.h"
 
 #include <vector>
 #include <mutex>
@@ -16,7 +16,11 @@
 #include <functional>
 #include "tracedoctor_register.h"
 
-#ifdef TRACEDOCTORBRIDGEMODULE_struct_guard
+struct TRACEDOCTORBRIDGEMODULE_struct{
+  uint64_t initDone;
+  uint64_t traceEnable;
+  uint64_t triggerSelector;
+}
 
 // Bridge Driver Instantiation Template
 #define INSTANTIATE_TRACEDOCTOR(FUNC,IDX) \
@@ -134,6 +138,5 @@ private:
   bool process_tokens(unsigned int const tokens, bool flush = false);
   void flush();
 };
-#endif // TRACEDOCTORBRIDGEMODULE_struct_guard
 
 #endif // __TRACEDOCTOR_H_

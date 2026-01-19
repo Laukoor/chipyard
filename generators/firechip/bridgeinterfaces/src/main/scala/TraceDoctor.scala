@@ -3,7 +3,9 @@
 package firechip.bridgeinterfaces
 
 import chisel3._
-import testchipip.cosim.TileTraceDoctorIO
+//import testchipip.cosim.TileTraceDoctorIO
+
+case class TraceDoctorKey(traceWidth: Int)
 
 /** Target-side IO for the TraceDoctor bridge (one instance per tile). */
 class TraceDoctorBridgeTargetIO(traceWidth: Int) extends Bundle {
@@ -11,6 +13,6 @@ class TraceDoctorBridgeTargetIO(traceWidth: Int) extends Bundle {
   val tiletrace = Input(new TileTraceDoctorIO(traceWidth))
 
   // 和 TracerV 一样保留 trigger 的握手
-  val triggerCredit = Output(Bool())
-  val triggerDebit  = Output(Bool())
+  //val triggerCredit = Output(Bool())
+  //val triggerDebit  = Output(Bool())
 }

@@ -7,6 +7,16 @@ import org.chipsalliance.cde.config.{Config}
 // Performant, stable baseline
 // ---------------------
 
+// TEA Addons ----------
+class TestBoomConfig extends Config(
+  new boom.v3.common.WithNTestBooms(1) ++                           // mega boom config
+  new chipyard.config.AbstractConfig)
+
+class UltraBoomConfig extends Config(
+  new boom.v3.common.WithNUltraBooms(1) ++                           // mega boom config
+  new chipyard.config.AbstractConfig)
+// ---------------------
+
 class SmallBoomV3Config extends Config(
   new boom.v3.common.WithNSmallBooms(1) ++                          // small boom config
   new chipyard.config.AbstractConfig)

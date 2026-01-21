@@ -256,6 +256,14 @@ class FireSimLargeBoomConfig extends Config(
   new WithFireSimConfigTweaks ++
   new chipyard.LargeBoomV3Config)
 
+//*****************************************************************
+// TEA Test Config, base off chipyard's SmallBoomV3Config
+//*****************************************************************
+class FireSimTEATestConfig extends Config(
+  new WithDefaultFireSimBridges ++
+  new WithFireSimConfigTweaks ++
+  new chipyard.SmallBoomV3Config)
+
 //********************************************************************
 // Heterogeneous config, base off chipyard's LargeBoomAndRocketConfig
 //********************************************************************

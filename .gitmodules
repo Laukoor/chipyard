@@ -10,6 +10,9 @@
 [submodule "sims/firesim"]
 	path = sims/firesim
 	url = https://github.com/Laukoor/firesim.git
+[submodule "software/firemarshal"]
+	path = software/firemarshal
+	url = https://github.com/Laukoor/FireMarshal.git
 	
 [submodule "fpga/fpga-shells"]
 	path = fpga/fpga-shells
@@ -74,9 +77,6 @@
 [submodule "software/embench/embench-iot"]
 	path = software/embench/embench-iot
 	url = https://github.com/embench/embench-iot.git
-[submodule "software/firemarshal"]
-	path = software/firemarshal
-	url = https://github.com/firesim/FireMarshal.git
 [submodule "software/nvdla-workload"]
 	path = software/nvdla-workload
 	url = https://github.com/ucb-bar/nvdla-workload.git

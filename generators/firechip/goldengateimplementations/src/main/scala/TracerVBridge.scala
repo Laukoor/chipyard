@@ -151,8 +151,14 @@ class TracerVBridgeModule(key: TraceBundleWidths)(implicit p: Parameters)
     // A Seq of Seq which represents each arm of the mux
     val allTraceArms = traces.grouped(armWidth).toSeq
 
+    
+    // BYPASS Modified
     // an intermediate value used to build allStreamBits
-    val allUintTraces = allTraceArms.map(arm => arm.map((trace => Cat(trace.valid, trace.iaddr.pad(63)))).reverse)
+    // val allUintTraces = allTraceArms.map(arm => arm.map((trace => Cat(trace.valid, trace.iaddr.pad(63)))).reverse)
+    // Combine PC (iaddr) and PSV into 64-bit: valid(1) + iaddr(53) + PSV(10) = 64 bits
+    val allUintTraces = allTraceArms.map(arm => arm.map(trace => 
+        Cat(trace.valid, trace.iaddr.pad(53), trace.psv)
+            ).reverse)
 
     // Literally each arm of the mux, these are directly the bits that get put into the bump
     val allStreamBits =

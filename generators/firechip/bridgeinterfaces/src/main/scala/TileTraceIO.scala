@@ -23,6 +23,8 @@ class TracedInstruction(traceBundleWidths: TraceBundleWidths) extends Bundle {
   val interrupt = Bool()
   val cause = UInt(traceBundleWidths.causeWidth.W)
   val tval = UInt(traceBundleWidths.tvalWidth.W)
+  // BYPASS Addon
+  val psv = UInt(10.W)  // Performance Signature Vector (9-bit PSV + 1-bit checksum)
 }
 
 class TraceBundle(traceBundleWidths: TraceBundleWidths) extends Bundle {

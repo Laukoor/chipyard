@@ -34,6 +34,8 @@ object ConvertTileTraceIO {
       l.interrupt := r.interrupt
       l.cause := r.cause
       l.tval := r.tval
+      // BYPASS Addon
+      l.psv := r.psv
     }
     ttw.trace.time := tiletrace.trace.time
     ttw
